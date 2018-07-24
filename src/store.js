@@ -11,12 +11,20 @@ export default new Vuex.Store({
     mutations: {
         increment() {
             this.state.cookies++
+        },
+        initialiseStore(state) {
+            if(localStorage.getItem('store')) {
+                this.replaceState(
+                    Object.assign(state, JSON.parse(localStorage.getItem('store')))
+                );
+            }
         }
     },
     actions: {
         increment ({ commit }) {
             commit('increment')
-        }
+        },
+
     },
     getters : {
         cookies: state => {
