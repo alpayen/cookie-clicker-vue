@@ -1,7 +1,7 @@
 <template>
     <div class="cookie-view">
         <div class="cookie-numbers">
-            <h2>{{counter}} Cookies</h2>
+            <h2>{{cookies}} Cookies</h2>
             <p>per seconds : 0</p>
         </div>
         <button @click="increment">click me</button>
@@ -11,14 +11,14 @@
 <script>
     export default {
         name: "CookieView",
-        data() {
-            return {
-                counter: 0
+        computed : {
+            cookies(){
+                return this.$store.state.cookies
             }
         },
         methods : {
             increment(){
-                this.counter++
+                this.$store.commit('increment')
             }
         }
     }
