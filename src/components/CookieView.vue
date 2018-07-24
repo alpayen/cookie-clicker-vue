@@ -2,24 +2,28 @@
     <div class="cookie-view">
         <div class="cookie-numbers">
             <h2>{{cookies}} Cookies</h2>
-            <p>per seconds : 0</p>
+            <p>per seconds : {{cookiesPerSecond}}</p>
         </div>
         <button @click="increment">click me</button>
     </div>
 </template>
 
 <script>
+    import { mapGetters, mapActions } from 'vuex'
     export default {
         name: "CookieView",
-        computed : {
-            cookies(){
-                return this.$store.state.cookies
-            }
+        computed: {
+
+            ...mapGetters([
+                'cookies',
+                'cookiesPerSecond'
+            ])
         },
         methods : {
-            increment(){
-                this.$store.commit('increment')
-            }
+
+            ...mapActions([
+                "increment"
+            ])
         }
     }
 </script>

@@ -5,12 +5,25 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
-        cookies: 0
+        cookies: 0,
+        cookiesPerSecond : 0
     },
     mutations: {
         increment() {
             this.state.cookies++
         }
     },
-    actions: {}
+    actions: {
+        increment ({ commit }) {
+            commit('increment')
+        }
+    },
+    getters : {
+        cookies: state => {
+            return state.cookies
+        },
+        cookiesPerSecond : state => {
+            return state.cookiesPerSecond
+        }
+    },
 })
