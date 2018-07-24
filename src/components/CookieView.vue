@@ -4,7 +4,7 @@
             <h2>{{cookies}} Cookies</h2>
             <p>per seconds : {{cookiesPerSecond}}</p>
         </div>
-        <button @click="increment">click me</button>
+        <img @click="increment" src="../assets/PerfectCookie.png"/>
     </div>
 </template>
 
@@ -19,6 +19,7 @@
                 'cookiesPerSecond'
             ])
         },
+
         methods : {
 
             ...mapActions([
@@ -31,5 +32,8 @@
 <style scoped>
     .cookie-view {
         width: 30vw;
+    }
+    img{
+        cursor: pointer;
     }
 </style>

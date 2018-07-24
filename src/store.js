@@ -6,7 +6,19 @@ Vue.use(Vuex)
 export default new Vuex.Store({
     state: {
         cookies: 0,
-        cookiesPerSecond : 0
+        cookiesPerSecond : 0,
+        storeItems : [
+            {
+                name : "Pointer",
+                image_url : "url.com",
+                owned : 0
+            },
+            {
+                name : "Grandma",
+                image_url : "url.com",
+                owned : 0
+            },
+        ]
     },
     mutations: {
         increment() {
