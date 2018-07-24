@@ -11,11 +11,21 @@
 <script>
     export default {
         name: "CookieView",
+        data() {
+            return {
+                counter: 0
+            }
+        },
+        methods : {
+            increment(){
+                this.counter++
+            }
+        }
     }
 </script>
 
 <style scoped>
-    .cookie-view{
+    .cookie-view {
         width: 30vw;
     }
 </style>
