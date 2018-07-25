@@ -10,12 +10,18 @@ export default new Vuex.Store({
         storeItems : [
             {
                 name : "Pointer",
-                image_url : "url.com",
+                logo_posX : 0,
+                logo_posY : 0,
+                price : 15,
+                cps : 0.1,
                 owned : 0
             },
             {
                 name : "Grandma",
-                image_url : "url.com",
+                logo_posX : 0,
+                logo_posY : -64,
+                price : 100,
+                cps : 1,
                 owned : 0
             },
         ]
@@ -25,11 +31,12 @@ export default new Vuex.Store({
             this.state.cookies++
         },
         initialiseStore(state) {
-            if(localStorage.getItem('store')) {
+
+            /*if(localStorage.getItem('store')) {
                 this.replaceState(
                     Object.assign(state, JSON.parse(localStorage.getItem('store')))
                 );
-            }
+            }*/
         }
     },
     actions: {
@@ -44,6 +51,9 @@ export default new Vuex.Store({
         },
         cookiesPerSecond : state => {
             return state.cookiesPerSecond
+        },
+        storeItems : state => {
+            return state.storeItems
         }
     },
 })
