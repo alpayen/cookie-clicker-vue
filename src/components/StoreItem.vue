@@ -1,5 +1,5 @@
 <template>
-    <div class="item-single" :class="{ 'disabled' : isTooExpensive() }">
+    <div class="item-single" :class="{ 'disabled' : isTooExpensive() }" @click="buyItem(index)">
         <div class="item-logo" :style="{ 'background-position' : itemImagePos }"></div>
         <div class="item-info">
             <h5>{{item.name}}</h5>
@@ -15,7 +15,8 @@
     export default {
         name: "StoreItem",
         props: {
-            item: Object
+            item: Object,
+            index : Number
         },
         computed: {
             itemImagePos(){
@@ -33,6 +34,9 @@
             isTooExpensive() {
                 return this.item.price > this.cookies
             },
+            ...mapActions([
+                "buyItem"
+            ])
         }
     }
 </script>

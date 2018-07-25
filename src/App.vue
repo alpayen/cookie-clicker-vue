@@ -4,7 +4,7 @@
             <CookieView/>
         </div>
         <div class="items-store">
-            <StoreItem v-for="(item, key) in storeItems" :key="key" :item="item"></StoreItem>
+            <StoreItem v-for="(item, key) in storeItems" :key="key" :item="item" :index="key"></StoreItem>
         </div>
     </div>
 </template>
@@ -26,6 +26,13 @@
                 'storeItems'
             ])
         },
+        beforeCreate(){
+            this.$store.dispatch("launchIncrementBySeconds");
+        },
+        methods: {
+
+        },
+
     }
 </script>
 
