@@ -1,5 +1,5 @@
 <template>
-    <div class="item-single" :class="{ 'disabled' : isTooExpensive() }" @click="buyItem(index)">
+    <div class="item-single" :class="{ 'disabled' : isTooExpensive }" @click="buyItem(index)">
         <div class="item-logo" :style="{ 'background-position' : itemImagePos }"></div>
         <div class="item-info">
             <h5>{{item.name}}</h5>
@@ -19,21 +19,21 @@
             index : Number
         },
         computed: {
+            isTooExpensive() {
+                return this.item.price > this.cookies
+            },
             itemImagePos(){
-                if(this.isTooExpensive()){
-                    return `${this.item.logo_posX-64}px ${this.item.logo_posY}px`
+                if(this.isTooExpensive){
+                    return `${this.item.logo_pos.x-64}px ${this.item.logo_pos.y}px`
                 }
-                return `${this.item.logo_posX}px ${this.item.logo_posY}px`
+                return `${this.item.logo_pos.x}px ${this.item.logo_pos.y}px`
             },
             ...mapGetters([
                 'cookies'
             ])
         },
-
         methods: {
-            isTooExpensive() {
-                return this.item.price > this.cookies
-            },
+
             ...mapActions([
                 "buyItem"
             ])

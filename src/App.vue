@@ -1,10 +1,16 @@
 <template>
     <div id="app">
-        <div class="cookie-view">
+        <div class="main">
             <CookieView/>
+            <div class="items-store">
+                <div class="upgrade-container">
+                    <StoreUpgrade v-for="(upgrade, key) in availableUpgrades" :key="key" :upgrade="upgrade" :index="key"></StoreUpgrade>
+                </div>
+                <StoreItem v-for="(item, key) in storeItems" :key="key" :item="item" :index="key"></StoreItem>
+            </div>
         </div>
-        <div class="items-store">
-            <StoreItem v-for="(item, key) in storeItems" :key="key" :item="item" :index="key"></StoreItem>
+        <div class="banner">
+            <CookieBanner/>
         </div>
     </div>
 </template>
@@ -12,50 +18,61 @@
 <script>
     import CookieView from './components/CookieView'
     import StoreItem from './components/StoreItem'
-    import { mapGetters } from 'vuex'
+    import CookieBanner from './components/CookieBanner'
+    import StoreUpgrade from './components/StoreUpgrade'
+    import {mapGetters} from 'vuex'
 
     export default {
         name: 'app',
         components: {
             CookieView,
-            StoreItem
+            StoreItem,
+            CookieBanner,
+            StoreUpgrade
         },
         computed: {
 
             ...mapGetters([
-                'storeItems'
+                'storeItems',
+                'availableUpgrades'
             ])
         },
-        beforeCreate(){
+        beforeCreate() {
             this.$store.dispatch("launchIncrementBySeconds");
         },
-        methods: {
-
-        },
+        methods: {},
 
     }
 </script>
 
 <style lang="scss">
-   body{
-       margin: 0;
-   }
-    #app{
-        height: 100vh;
+    body {
+        margin: 0;
+    }
+
+    .main {
+        height: 85vh;
         width: 100vw;
 
         display: flex;
         justify-content: space-between;
     }
 
-    .cookie-view{
+    .cookie-view {
         width: 30vw;
         height: 100%;
         background: lavender;
     }
-    .items-store{
+
+    .items-store {
         width: 30vw;
         height: 100%;
         background: lightcyan;
+    }
+    .upgrade-container{
+        display: flex;
+        align-items: center;
+        height: 10vh;
+        border-bottom: gray solid 1px ;
     }
 </style>

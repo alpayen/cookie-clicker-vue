@@ -1,64 +1,148 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
-        cookies: 0,
+        cookies: 1000,
         storeItems: [
             {
                 name: "Pointer",
-                logo_posX: 0,
-                logo_posY: 0,
+                logo_pos: {
+                    x: 0,
+                    y: 0
+                },
                 price: 15,
                 cps: 0.1,
-                owned: 0
+                owned: 0,
+                upgrades: [
+                    {
+                        name: "Reinforced index finger",
+                        price: 100,
+                        quantity_needed: 1,
+                        owned: false,
+                        icon_pos: {
+                            x: 0,
+                            y: 0
+                        }
+                    },
+                    {
+                        name: "Carpal tunnel prevention cream",
+                        price: 500,
+                        quantity_needed: 1,
+                        owned: false,
+                        icon_pos: {
+                            x: 0,
+                            y: -48
+                        }
+                    },
+                ]
             },
             {
                 name: "Grandma",
-                logo_posX: 0,
-                logo_posY: -64,
+                logo_pos: {
+                    x: 0,
+                    y: -64
+                },
                 price: 100,
                 cps: 1,
-                owned: 0
+                owned: 0,
+                upgrades: [
+                    {
+                        name: "Forwards from grandma",
+                        price: 1000,
+                        quantity_needed: 1,
+                        owned: false,
+                        icon_pos: {
+                            x: -48,
+                            y: 0
+                        }
+                    },
+                    {
+                        name: "Steel-plated rolling pins",
+                        price: 5000,
+                        quantity_needed: 5,
+                        owned: false,
+                        icon_pos: {
+                            x: -48,
+                            y: 0
+                        }
+                    },
+                ]
             },
-        ]
+        ],
+        availableUpgrades: []
     },
     mutations: {
-        increment(state) {
+        SET_COOKIES_INCREMENT(state) {
             state.cookies++
         },
         initialiseStore(state) {
-            if (localStorage.getItem('store')) {
-                this.replaceState(
-                    Object.assign(state, JSON.parse(localStorage.getItem('store')))
-                );
-            }
+            // if (localStorage.getItem('store')) {
+            //     this.replaceState(
+            //         Object.assign(state, JSON.parse(localStorage.getItem('store')))
+            //     );
+            // }
         },
-        buyItem(state, index) {
+        SET_ITEM_OWNED(state, index) {
             if (state.cookies >= state.storeItems[index].price) {
                 state.storeItems[index].owned++;
                 state.cookies -= state.storeItems[index].price;
                 state.storeItems[index].price = Math.floor(state.storeItems[index].price + state.storeItems[index].price * (15 / 100));
-                }
+            }
+        },
+        SET_UPGRADE_OWNED(state, indexes) {
+            console.log(indexes);
+            if (state.cookies >= state.storeItems[indexes.itemIndex].upgrades[indexes.upgradeIndex].price) {
+                state.storeItems[indexes.itemIndex].upgrades[indexes.upgradeIndex].owned = true;
+                state.cookies -= state.storeItems[indexes.itemIndex].upgrades[indexes.upgradeIndex].price;
+            }
         },
         incrementBySeconds(state) {
-            state.cookies += this.getters.cookiesPerSecond
+            state.cookies += this.getters.cookiesPerSecond / 10
+        },
+        SET_AVAILABLE_UPGRADES(state, availableUpgrades) {
+            Vue.set(state, 'availableUpgrades', availableUpgrades);
+            state.availableUpgrades = availableUpgrades
         }
     },
     actions: {
-        increment({commit}) {
-            commit('increment')
+        computeUpgrades({commit, state}) {
+            let availableUpgrades = [];
+
+            state.storeItems.forEach(function (item, itemIndex) {
+                item.upgrades.forEach(function (upgrade, upgradeIndex) {
+                    if (!upgrade.owned && item.owned >= upgrade.quantity_needed) {
+                        upgrade.disabled = state.cookies < upgrade.price;
+                        upgrade.indexes = {
+                            itemIndex: itemIndex,
+                            upgradeIndex: upgradeIndex
+                        };
+                        availableUpgrades.push(upgrade);
+                    }
+                })
+            });
+            commit("SET_AVAILABLE_UPGRADES", availableUpgrades);
+        },
+        increment({commit, dispatch}) {
+            commit('SET_COOKIES_INCREMENT');
+            dispatch('computeUpgrades');
+
         },
         buyItem({commit}, index) {
-
-            commit("buyItem", index)
+            commit("SET_ITEM_OWNED", index)
         },
-        launchIncrementBySeconds({commit}) {
+        buyUpgrade({commit}, indexes) {
+            commit("SET_UPGRADE_OWNED", indexes)
+        },
+        launchIncrementBySeconds({commit, dispatch}) {
+            dispatch('computeUpgrades');
             setInterval(function () {
-                commit("incrementBySeconds")
-            }, 1000);
+                commit("incrementBySeconds");
+                dispatch('computeUpgrades');
+
+            }, 100);
         }
     },
     getters: {
@@ -75,5 +159,8 @@ export default new Vuex.Store({
         storeItems: state => {
             return state.storeItems
         },
+        availableUpgrades: state => {
+            return state.availableUpgrades;
+        }
     },
 })
