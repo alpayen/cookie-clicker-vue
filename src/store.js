@@ -5,10 +5,10 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
-        cookies: 1000,
+        cookies: 10000,
         storeItems: [
             {
-                name: "Pointer",
+                name: "CURSOR",
                 logo_pos: {
                     x: 0,
                     y: 0
@@ -66,7 +66,7 @@ export default new Vuex.Store({
                         owned: false,
                         icon_pos: {
                             x: -48,
-                            y: 0
+                            y: -48
                         }
                     },
                 ]
@@ -76,7 +76,14 @@ export default new Vuex.Store({
     },
     mutations: {
         SET_COOKIES_INCREMENT(state) {
-            state.cookies++
+            let clickIncrement = 1;
+            // GET CURSORS UPRGRADES TO IMPLEMENT CLICK LOGIC
+            state.storeItems[0].upgrades.map((upgrade) => {
+                if (upgrade.owned) {
+                    clickIncrement = clickIncrement * 2
+                }
+            });
+            state.cookies += clickIncrement;
         },
         initialiseStore(state) {
             // if (localStorage.getItem('store')) {
@@ -93,7 +100,6 @@ export default new Vuex.Store({
             }
         },
         SET_UPGRADE_OWNED(state, indexes) {
-            console.log(indexes);
             if (state.cookies >= state.storeItems[indexes.itemIndex].upgrades[indexes.upgradeIndex].price) {
                 state.storeItems[indexes.itemIndex].upgrades[indexes.upgradeIndex].owned = true;
                 state.cookies -= state.storeItems[indexes.itemIndex].upgrades[indexes.upgradeIndex].price;
@@ -151,8 +157,13 @@ export default new Vuex.Store({
         },
         cookiesPerSecond: state => {
             let cpsTotal = 0;
-            state.storeItems.map((cookie) => {
-                cpsTotal += cookie.cps * cookie.owned
+            state.storeItems.map((item) => {
+                cpsTotal += item.cps * item.owned;
+                item.upgrades.map((upgrade) => {
+                    if (upgrade.owned) {
+                        cpsTotal = cpsTotal * 2
+                    }
+                })
             });
             return cpsTotal;
         },
