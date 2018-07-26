@@ -11,7 +11,7 @@ store.subscribe((mutation, state) => {
 new Vue({
     store,
     beforeCreate(){
-        this.$store.commit("initialiseStore");
+        this.$store.dispatch("initStoreFromLocalStroage");
     },
     render: h => h(App)
 }).$mount('#app')

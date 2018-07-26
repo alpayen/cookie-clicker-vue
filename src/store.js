@@ -5,7 +5,17 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
-        cookies: 10000,
+
+        availableUpgrades: [],
+
+        cookies: 1000,
+
+        goldenCookies: [
+            "LUCKY", "FRENZY"
+        ],
+
+        currentGoldenCookie: [],
+
         storeItems: [
             {
                 name: "CURSOR",
@@ -71,13 +81,27 @@ export default new Vuex.Store({
                     },
                 ]
             },
-        ],
-        availableUpgrades: []
+        ]
     },
     mutations: {
+
+        INIT_STORE_FROM_LOCAL_STORAGE(state) {
+            // if (localStorage.getItem('store')) {
+            //     this.replaceState(
+            //         Object.assign(state, JSON.parse(localStorage.getItem('store')))
+            //     );
+            // }
+        },
+
+        REMOVE_SPAWNED_GOLDEN_COOKIE(state, cookie_type) {
+            let index = state.currentGoldenCookie.indexOf(cookie_type)
+            console.log(index)
+            state.currentGoldenCookie.splice(index, 1);
+        },
+
         SET_COOKIES_INCREMENT(state) {
             let clickIncrement = 1;
-            // GET CURSORS UPRGRADES TO IMPLEMENT CLICK LOGIC
+            // GET CURSORS UPGRADES TO IMPLEMENT CLICK LOGIC
             state.storeItems[0].upgrades.map((upgrade) => {
                 if (upgrade.owned) {
                     clickIncrement = clickIncrement * 2
@@ -85,13 +109,15 @@ export default new Vuex.Store({
             });
             state.cookies += clickIncrement;
         },
-        initialiseStore(state) {
-            // if (localStorage.getItem('store')) {
-            //     this.replaceState(
-            //         Object.assign(state, JSON.parse(localStorage.getItem('store')))
-            //     );
-            // }
+
+        SET_AVAILABLE_UPGRADES(state, availableUpgrades) {
+            state.availableUpgrades = availableUpgrades
         },
+
+        SET_COOKIES_INCREMENT_BY_SECONDS(state) {
+            state.cookies += this.getters.cookiesPerSecond / 10
+        },
+
         SET_ITEM_OWNED(state, index) {
             if (state.cookies >= state.storeItems[index].price) {
                 state.storeItems[index].owned++;
@@ -99,21 +125,32 @@ export default new Vuex.Store({
                 state.storeItems[index].price = Math.floor(state.storeItems[index].price + state.storeItems[index].price * (15 / 100));
             }
         },
+
+        SET_SPAWNED_GOLDEN_COOKIE(state, cookie_type) {
+            if(state.currentGoldenCookie.indexOf(cookie_type) < 0){
+                state.currentGoldenCookie.push(cookie_type);
+                console.log(state.currentGoldenCookie);
+            }
+        },
+
         SET_UPGRADE_OWNED(state, indexes) {
             if (state.cookies >= state.storeItems[indexes.itemIndex].upgrades[indexes.upgradeIndex].price) {
                 state.storeItems[indexes.itemIndex].upgrades[indexes.upgradeIndex].owned = true;
                 state.cookies -= state.storeItems[indexes.itemIndex].upgrades[indexes.upgradeIndex].price;
             }
         },
-        incrementBySeconds(state) {
-            state.cookies += this.getters.cookiesPerSecond / 10
-        },
-        SET_AVAILABLE_UPGRADES(state, availableUpgrades) {
-            Vue.set(state, 'availableUpgrades', availableUpgrades);
-            state.availableUpgrades = availableUpgrades
-        }
+
     },
     actions: {
+
+        buyItem({commit}, index) {
+            commit("SET_ITEM_OWNED", index)
+        },
+
+        buyUpgrade({commit}, indexes) {
+            commit("SET_UPGRADE_OWNED", indexes)
+        },
+
         computeUpgrades({commit, state}) {
             let availableUpgrades = [];
 
@@ -131,47 +168,82 @@ export default new Vuex.Store({
             });
             commit("SET_AVAILABLE_UPGRADES", availableUpgrades);
         },
+
+        doGoldenCookieAction({commit}, cookie_type){
+            console.log('do action' + cookie_type)
+        },
+
         increment({commit, dispatch}) {
             commit('SET_COOKIES_INCREMENT');
             dispatch('computeUpgrades');
 
         },
-        buyItem({commit}, index) {
-            commit("SET_ITEM_OWNED", index)
+
+        initStoreFromLocalStroage({commit}) {
+            commit("INIT_STORE_FROM_LOCAL_STORAGE")
         },
-        buyUpgrade({commit}, indexes) {
-            commit("SET_UPGRADE_OWNED", indexes)
+
+        launchGoldenInterval({commit, dispatch}) {
+            let counter = 0;
+            setInterval(function () {
+                    counter += 900;
+                    if (Math.random() < counter / 900) {
+                        counter = 0;
+                        dispatch("spawnGoldenCookie")
+                    }
+                }, 1000
+            )
         },
+
         launchIncrementBySeconds({commit, dispatch}) {
             dispatch('computeUpgrades');
             setInterval(function () {
-                commit("incrementBySeconds");
+                commit("SET_COOKIES_INCREMENT_BY_SECONDS");
                 dispatch('computeUpgrades');
-
             }, 100);
-        }
+        },
+
+        spawnGoldenCookie({commit, state}) {
+            commit("SET_SPAWNED_GOLDEN_COOKIE", state.goldenCookies[Math.floor((Math.random() * state.goldenCookies.length))])
+        },
+
+        removeGoldenCookie({commit}, cookie_type){
+            commit("REMOVE_SPAWNED_GOLDEN_COOKIE", cookie_type)
+        },
+
     },
-    getters: {
-        cookies: state => {
-            return state.cookies
+    getters:
+        {
+
+            availableUpgrades: state => {
+                return state.availableUpgrades;
+            },
+
+            cookies: state => {
+                return state.cookies
+            },
+
+            cookiesPerSecond: state => {
+                let cpsTotal = 0;
+                state.storeItems.map((item) => {
+                    cpsTotal += item.cps * item.owned;
+                    item.upgrades.map((upgrade) => {
+                        if (upgrade.owned) {
+                            cpsTotal = cpsTotal * 2
+                        }
+                    })
+                });
+                return cpsTotal;
+            },
+
+            currentGoldenCookies : state => {
+              return state.currentGoldenCookie
+            },
+
+            storeItems: state => {
+                return state.storeItems
+            },
+
+
         },
-        cookiesPerSecond: state => {
-            let cpsTotal = 0;
-            state.storeItems.map((item) => {
-                cpsTotal += item.cps * item.owned;
-                item.upgrades.map((upgrade) => {
-                    if (upgrade.owned) {
-                        cpsTotal = cpsTotal * 2
-                    }
-                })
-            });
-            return cpsTotal;
-        },
-        storeItems: state => {
-            return state.storeItems
-        },
-        availableUpgrades: state => {
-            return state.availableUpgrades;
-        }
-    },
 })

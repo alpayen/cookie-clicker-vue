@@ -12,6 +12,7 @@
         <div class="banner">
             <CookieBanner/>
         </div>
+        <GoldenCookie v-for="cookie in currentGoldenCookies" :cookie_type="cookie"></GoldenCookie>
     </div>
 </template>
 
@@ -20,6 +21,7 @@
     import StoreItem from './components/StoreItem'
     import CookieBanner from './components/CookieBanner'
     import StoreUpgrade from './components/StoreUpgrade'
+    import GoldenCookie from './components/GoldenCookie'
     import {mapGetters} from 'vuex'
 
     export default {
@@ -28,17 +30,20 @@
             CookieView,
             StoreItem,
             CookieBanner,
-            StoreUpgrade
+            StoreUpgrade,
+            GoldenCookie
         },
         computed: {
 
             ...mapGetters([
                 'storeItems',
-                'availableUpgrades'
+                'availableUpgrades',
+                'currentGoldenCookies'
             ])
         },
         beforeCreate() {
             this.$store.dispatch("launchIncrementBySeconds");
+            this.$store.dispatch("launchGoldenInterval");
         },
         methods: {},
 
