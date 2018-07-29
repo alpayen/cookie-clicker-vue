@@ -8,11 +8,13 @@ export default new Vuex.Store({
 
         availableUpgrades: [],
 
-        cookies: 1000,
+        cookies: 70000,
 
         goldenCookies: [
             "LUCKY", "FRENZY"
         ],
+
+        bonusMultiplier : 1,
 
         currentGoldenCookie: [],
 
@@ -81,6 +83,39 @@ export default new Vuex.Store({
                     },
                 ]
             },
+            {
+                name: "Farm",
+                logo_pos: {
+                    x: 0,
+                    y: -192
+                },
+                price: 1100,
+                cps: 8,
+                owned: 0,
+                upgrades: [
+                    {
+                        name: "Cheap hoes",
+                        price: 11000,
+                        quantity_needed: 1,
+                        owned: false,
+                        icon_pos: {
+                            x: -96,
+                            y: 0
+                        }
+                    },
+                    {
+                        name: "Fertilizer",
+                        price: 55000,
+                        quantity_needed: 5,
+                        owned: false,
+                        icon_pos: {
+                            x: -96,
+                            y: -48
+                        }
+                    },
+                ]
+            },
+
         ]
     },
     mutations: {
@@ -93,9 +128,21 @@ export default new Vuex.Store({
             // }
         },
 
+        DO_LUCKY_COOKIE(state) {
+            state.cookies += (state.cookies / 100) + 13;
+        },
+
+        DO_FRENZY_COOKIE(state) {
+            state.bonusMultiplier = 7;
+
+            setTimeout(function () {
+                state.bonusMultiplier = 1;
+            }, 77000)
+
+        },
+
         REMOVE_SPAWNED_GOLDEN_COOKIE(state, cookie_type) {
             let index = state.currentGoldenCookie.indexOf(cookie_type)
-            console.log(index)
             state.currentGoldenCookie.splice(index, 1);
         },
 
@@ -127,9 +174,9 @@ export default new Vuex.Store({
         },
 
         SET_SPAWNED_GOLDEN_COOKIE(state, cookie_type) {
-            if(state.currentGoldenCookie.indexOf(cookie_type) < 0){
+            if (state.currentGoldenCookie.indexOf(cookie_type) < 0) {
                 state.currentGoldenCookie.push(cookie_type);
-                console.log(state.currentGoldenCookie);
+                console.log(cookie_type)
             }
         },
 
@@ -169,8 +216,16 @@ export default new Vuex.Store({
             commit("SET_AVAILABLE_UPGRADES", availableUpgrades);
         },
 
-        doGoldenCookieAction({commit}, cookie_type){
-            console.log('do action' + cookie_type)
+        doGoldenCookieAction({commit}, cookie_type) {
+            switch (cookie_type) {
+                case "LUCKY" :
+                    commit("DO_LUCKY_COOKIE");
+                    break;
+
+                case "FRENZY" :
+                    commit("DO_FRENZY_COOKIE");
+                    break
+            }
         },
 
         increment({commit, dispatch}) {
@@ -186,7 +241,7 @@ export default new Vuex.Store({
         launchGoldenInterval({commit, dispatch}) {
             let counter = 0;
             setInterval(function () {
-                    counter += 900;
+                    counter += 1;
                     if (Math.random() < counter / 900) {
                         counter = 0;
                         dispatch("spawnGoldenCookie")
@@ -207,43 +262,42 @@ export default new Vuex.Store({
             commit("SET_SPAWNED_GOLDEN_COOKIE", state.goldenCookies[Math.floor((Math.random() * state.goldenCookies.length))])
         },
 
-        removeGoldenCookie({commit}, cookie_type){
+        removeGoldenCookie({commit}, cookie_type) {
             commit("REMOVE_SPAWNED_GOLDEN_COOKIE", cookie_type)
         },
 
     },
-    getters:
-        {
+    getters: {
 
-            availableUpgrades: state => {
-                return state.availableUpgrades;
-            },
-
-            cookies: state => {
-                return state.cookies
-            },
-
-            cookiesPerSecond: state => {
-                let cpsTotal = 0;
-                state.storeItems.map((item) => {
-                    cpsTotal += item.cps * item.owned;
-                    item.upgrades.map((upgrade) => {
-                        if (upgrade.owned) {
-                            cpsTotal = cpsTotal * 2
-                        }
-                    })
-                });
-                return cpsTotal;
-            },
-
-            currentGoldenCookies : state => {
-              return state.currentGoldenCookie
-            },
-
-            storeItems: state => {
-                return state.storeItems
-            },
-
-
+        availableUpgrades: state => {
+            return state.availableUpgrades;
         },
+
+        cookies: state => {
+            return state.cookies
+        },
+
+        cookiesPerSecond: state => {
+            let cpsTotal = 0;
+            state.storeItems.map((item) => {
+                cpsTotal += item.cps * item.owned;
+                item.upgrades.map((upgrade) => {
+                    if (upgrade.owned) {
+                        cpsTotal = cpsTotal * 2
+                    }
+                })
+            });
+            return cpsTotal * state.bonusMultiplier;
+        },
+
+        currentGoldenCookies: state => {
+            return state.currentGoldenCookie
+        },
+
+        storeItems: state => {
+            return state.storeItems
+        },
+
+
+    },
 })
