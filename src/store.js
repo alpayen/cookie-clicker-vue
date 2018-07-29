@@ -8,7 +8,7 @@ export default new Vuex.Store({
 
         availableUpgrades: [],
 
-        cookies: 70000,
+        cookies: 0,
 
         goldenCookies: [
             "LUCKY", "FRENZY"
