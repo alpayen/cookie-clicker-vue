@@ -121,11 +121,11 @@ export default new Vuex.Store({
     mutations: {
 
         INIT_STORE_FROM_LOCAL_STORAGE(state) {
-            // if (localStorage.getItem('store')) {
-            //     this.replaceState(
-            //         Object.assign(state, JSON.parse(localStorage.getItem('store')))
-            //     );
-            // }
+            if (localStorage.getItem('store')) {
+                this.replaceState(
+                    Object.assign(state, JSON.parse(localStorage.getItem('store')))
+                );
+            }
         },
 
         DO_LUCKY_COOKIE(state) {
@@ -176,7 +176,6 @@ export default new Vuex.Store({
         SET_SPAWNED_GOLDEN_COOKIE(state, cookie_type) {
             if (state.currentGoldenCookie.indexOf(cookie_type) < 0) {
                 state.currentGoldenCookie.push(cookie_type);
-                console.log(cookie_type)
             }
         },
 
